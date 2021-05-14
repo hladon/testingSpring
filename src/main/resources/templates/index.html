@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:th="http://www.thymeleaf.org" >
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" th:href="@{style.css}">
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="controlls">
+            <label>Rows <input class="inputNumber" type="number" id="row-number" min="3" max="99" value="3"></label>
+            <label>Columns <input class="inputNumber" type="number" id="cols-number" min="3" max="99" value="3"></label>
+            <label>Win number <input class="inputNumber" type="number" id="steps" min="3" max="99" value="3"></label>
+        </div>
+        <div class="players">
+            <label id="player1Label">Player1 <input  type="text" id="player1" ></label>
+            <label id="player2Label">Player2 <input  type="text" id="player2" ></label>
+        </div>
+        <div class="buttons">
+            <input class="agreeButton" type="submit" id="start-button" onclick="createMatch()">
+            <input class="agreeButton" type="reset" id="reset" onclick="resetField()">
+        </div>
+        <div class="fieldContainer">
+            <div id="field">
+
+            </div>
+        </div>
+
+    </div>
+    <script src="code.js"></script>
+    <script type="text/javascript">
+        let color = "green";
+        let currentPlayer = "player1";
+        let fieldPresentation = [];
+        let winCount =3;
+
+        function switchPlayer() {
+            if (currentPlayer === "player1") {
+                currentPlayer = "player2";
+                color = "red";
+                return;
+            }
+            currentPlayer = "player1";
+            color = "green";
+        }
+
+        function cleanField() {
+            document.getElementById("field").innerHTML = '';
+            fieldPresentation = [];
+            color = "green";
+            currentPlayer = "player1";
+
+        }
+
+        function createMatch() {
+            let pl1 = document.getElementById("player1").value;
+            let pl2 = document.getElementById("player2").value;
+            if (pl1 == 0) {
+                alert("enter player1 name!");
+                return;
+            }
+            if (pl2 == 0) {
+                alert("enter player2 name!");
+                return;
+            }
+            if (pl1 == pl2) {
+                alert("Players should have different names");
+                return;
+            }
+            cleanField();
+            drawField();
+            winCount=document.getElementById("steps").value;
+        }
+
+
+        function resetField() {
+            cleanField();
+            drawField();
+        }
+
+        function setValueToArray(cellId) {
+            let c1 = parseInt(cellId.charAt(5));
+            let c2 = parseInt(cellId.charAt(6));
+            let playerId;
+            if (currentPlayer === "player1") {
+                playerId = 1;
+            } else {
+                playerId = 2;
+            }
+            fieldPresentation[c1][c2] = playerId;
+            if (checkWin(c1, c2, playerId))
+                win();
+        }
+
+        function win() {
+            alert(currentPlayer + " are winner!");
+            let elem = document.getElementsByClassName("cell");
+            for (let e of elem) {
+                e.onclick = null;
+            }
+        }
+
+        function checkWin(c1, c2, playerId) {
+            return checkHorizontal(c1, c2, playerId) || checkVertical(c1, c2, playerId) || checkDiagonal1(c1, c2, playerId) || checkDiagonal2(c1, c2, playerId)
+
+        }
+
+        function checkDiagonal1(c1, c2, playerId) {
+            let x = c1;
+            let y = c2;
+            let sum = 1;
+            while (true) {
+                x--;
+                y--;
+                if (x < 0 || y < 0)
+                    break;
+                if (fieldPresentation[x][y] == playerId) {
+                    sum++;
+                } else {
+                    break;
+                }
+            }
+            while (true) {
+                c1++;
+                c2++;
+                if (c1 >= fieldPresentation.length || c2 >= fieldPresentation[0].length)
+                    break;
+                if (fieldPresentation[c1][c2] == playerId) {
+                    sum++;
+                } else {
+                    break;
+                }
+            }
+            if (sum >= winCount)
+                return true;
+            return false;
+        }
+
+        function checkDiagonal2(c1, c2, playerId) {
+            let x = c1;
+            let y = c2;
+            let sum = 1;
+            while (true) {
+                x--;
+                y++;
+                if (x < 0 || y >= fieldPresentation[0].length)
+                    break;
+                if (fieldPresentation[x][y] == playerId) {
+                    sum++;
+                } else {
+                    break;
+                }
+            }
+            while (true) {
+                c1++;
+                c2--;
+                if (c1 >= fieldPresentation.length || c2 < 0)
+                    break;
+                if (fieldPresentation[c1][c2] == playerId) {
+                    sum++;
+                } else {
+                    break;
+                }
+            }
+            if (sum >= winCount)
+                return true;
+            return false;
+        }
+
+        function checkVertical(c1, c2, playerId) {
+            let begin = c1 - winCount;
+            let currentLine = 0;
+            if (begin < 0)
+                begin = 0;
+            for (let index = begin; index < fieldPresentation.length; index++) {
+                if (fieldPresentation[index][c2] != playerId) {
+                    currentLine = 0;
+                    continue;
+                }
+                currentLine++;
+                if (currentLine == winCount)
+                    return true;
+            }
+            return false;
+        }
+
+        function checkHorizontal(c1, c2, playerId) {
+            let line = fieldPresentation[c1];
+            let begin = c2 - winCount;
+            let currentLine = 0;
+            if (begin < 0)
+                begin = 0;
+            for (let index = begin; index < line.length; index++) {
+                if (line[index] != playerId) {
+                    currentLine = 0;
+                    continue;
+                }
+                currentLine++;
+                if (currentLine == winCount)
+                    return true;
+            }
+            return false;
+
+        }
+
+        function createCells(rowElement, j, columns) {
+            for (let i = 0; i < columns; i++) {
+                let cellElement = document.createElement("div");
+                cellElement.className = "cell";
+                cellElement.id = "cell:" + j + i;
+                cellElement.onclick = function() {
+                    cellElement.style.background = color;
+                    setValueToArray(this.id);
+                    switchPlayer();
+                    cellElement.onclick = null;
+                }
+                rowElement.appendChild(cellElement);
+                fieldPresentation[j].push(0);
+            }
+        }
+
+        function drawField() {
+            let rows = document.getElementById("row-number").value;
+            let columns = document.getElementById('cols-number').value;
+            let field = document.getElementById("field");
+            for (let j = 0; j < rows; j++) {
+                fieldPresentation.push([]);
+                let rowElement = document.createElement("div");
+                rowElement.className = "row";
+                field.appendChild(rowElement);
+                createCells(rowElement, j, columns);
+            }
+        }
+    </script>
+</body>
+
+</html>
