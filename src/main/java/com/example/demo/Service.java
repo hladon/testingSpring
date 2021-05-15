@@ -29,7 +29,7 @@ public class Service {
         this.productRepository = productRepository;
     }
 
-    public boolean createMember(String userName, String password, String email, String fullName, String address, String phone, String birhdate) {
+    public Member createMember(String userName, String password, String email, String fullName, String address, String phone, String birhdate, String gender) throws Exception {
         Member member = new Member();
         member.setUserName(userName);
         member.setPassword(password);
@@ -38,11 +38,13 @@ public class Service {
         member.setAddress(address);
         member.setPhone(phone);
         member.setBirtDate(LocalDate.parse(birhdate));
+        member.setGender(gender);
         if ((LocalDate.now().getYear() - member.getBirtDate().getYear()) < 18)
-            return false;
-        if (memberRepository.save(member) != null)
-            return true;
-        return false;
+            throw new Exception("invalid date");
+        Member returnMember = memberRepository.save(member);
+        if (returnMember != null)
+            return returnMember;
+        throw new Exception("Save problem");
     }
 
     public boolean addComment(Product product, Member member, String message) throws Exception {

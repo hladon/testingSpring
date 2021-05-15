@@ -2,7 +2,9 @@ package com.example.demo;
 
 import com.example.demo.DAO.JpaConfig;
 import com.example.demo.DAO.MemberRepository;
+import com.example.demo.DAO.ProductRepository;
 import com.example.demo.entity.Member;
+import com.example.demo.entity.Product;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class DBTest {
     @Resource
     private MemberRepository memberRepository;
+    @Resource
+    private Service service;
+    @Resource
+    private ProductRepository productRepository;
 
     @Test
     public void givenMember_whenSave_thenGetOk() {
@@ -37,10 +43,70 @@ public class DBTest {
         assertEquals("test", member2.getUserName());
     }
     @Test
-    public void whenNotValidNameThrowException(){
-        Member member=new Member(0,);
-        Assertions.assertThrows(ConstraintViolationException.class,()->{
+    public void whenCreateMemberSave() {
 
-        })
+        String date="03/03/2020";
+        String fullName="John Week";
+        String phone="+3(095)345-34-34";
+        String address="some city";
+        String email="wetre@gdfgs.com";
+        String gender="MALE";
+        String userName="John";
+        String setPassword="123";
+        Assertions.assertThrows(ConstraintViolationException.class,()->{
+            service.createMember(userName,setPassword,email,fullName,address,phone,date,gender);
+        });
+    }
+    @Test
+    public void whenCreateNameNotValidNameThrowException() {
+
+        String date="03/03/2020";
+        String fullName="John Week";
+        String phone="+3(095)345-34-34";
+        String address="some city";
+        String email="wetre@gdfgs.com";
+        String gender="MALE";
+        String userName="John132";
+        String setPassword="123";
+        Assertions.assertThrows(ConstraintViolationException.class,()->{
+            service.createMember(userName,setPassword,email,fullName,address,phone,date,gender);
+        });
+    }
+    @Test
+    public void whenAddCommentAllOk() throws Exception{
+
+        String date="03/03/2020";
+        String fullName="John Week";
+        String phone="+3(095)345-34-34";
+        String address="some city";
+        String email="wetre@gdfgs.com";
+        String gender="MALE";
+        String userName="John132";
+        String setPassword="123";
+        Member member=service.createMember(userName,setPassword,email,fullName,address,phone,date,gender);
+        Product product=new Product();
+        product.setDescription("some goods");
+        product.setProductName("goods");
+        productRepository.save(product);
+        Assertions.assertTrue(service.addComment(product,member,"some text"));
+    }
+    @Test
+    public void whenAddCommentProductNotExistThrowsException() throws Exception{
+
+        String date="03/03/2020";
+        String fullName="John Week";
+        String phone="+3(095)345-34-34";
+        String address="some city";
+        String email="wetre@gdfgs.com";
+        String gender="MALE";
+        String userName="John132";
+        String setPassword="123";
+        Member member=service.createMember(userName,setPassword,email,fullName,address,phone,date,gender);
+        Product product=new Product();
+        product.setDescription("some goods");
+        product.setProductName("goods");
+        Assertions.assertThrows(Exception.class,()->{
+            service.addComment(product,member,"some text");
+        });
     }
 }
