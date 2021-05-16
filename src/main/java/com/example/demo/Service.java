@@ -12,6 +12,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
 @Validated
@@ -29,7 +30,7 @@ public class Service {
         this.productRepository = productRepository;
     }
 
-    public Member createMember(String userName, String password, String email, String fullName, String address, String phone, String birhdate, String gender) throws Exception {
+    public Member createMember( String userName, String password, String email, String fullName, String address, String phone, String birhdate, String gender) throws Exception {
         Member member = new Member();
         member.setUserName(userName);
         member.setPassword(password);

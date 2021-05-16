@@ -5,18 +5,13 @@ import com.example.demo.DAO.MemberRepository;
 import com.example.demo.DAO.ProductRepository;
 import com.example.demo.entity.Member;
 import com.example.demo.entity.Product;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import javax.validation.ConstraintViolationException;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -25,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         loader = AnnotationConfigContextLoader.class)
 @Transactional
 public class DBTest {
-    @Resource
+    @Autowired
     private MemberRepository memberRepository;
     @Resource
     private Service service;
@@ -38,12 +33,12 @@ public class DBTest {
         member.setMemberId(1);
         member.setFullName("test");
         memberRepository.save(member);
-
         Member member2 = memberRepository.findById(1).get();
         assertEquals("test", member2.getUserName());
     }
+
     @Test
-    public void whenCreateMemberSave() {
+    public void whenCreateMemberSave() throws Exception{
 
         String date="03/03/2020";
         String fullName="John Week";
@@ -53,8 +48,9 @@ public class DBTest {
         String gender="MALE";
         String userName="John";
         String setPassword="123";
+        Member member=service.createMember(userName,setPassword,email,fullName,address,phone,date,gender);
         Assertions.assertThrows(ConstraintViolationException.class,()->{
-            service.createMember(userName,setPassword,email,fullName,address,phone,date,gender);
+
         });
     }
     @Test
